@@ -1,0 +1,133 @@
+body {
+  margin: 3px;
+  font-size: 12pt;
+  color: #c0ffee;
+  background-color: #202527;
+}
+.page {
+  margin: 0 auto;
+  max-width: 1024px;
+}
+.page-header {
+  width: 100%;
+  text-align: center;
+  font-size: 1.2rem;
+}
+.page-menu {
+  float: right;
+  margin: 5px 9px;
+  cursor: pointer;
+}
+.page-menu:hover {
+  color: #eee;
+}
+.page-title {
+  width: 100%;
+  text-align: center;
+  margin: 5px;
+}
+.page-cont {
+  display: flex;
+  flex-flow: row;
+}
+.page-form {
+  flex-shrink: 2;
+  width: 35%;
+  display: flex;
+  flex-flow: column;
+}
+.page-form-btn-cont {
+  height: 2rem;
+}
+.page-location-btn {
+  float: right;
+}
+.page-form-select {
+  height: 10rem;
+  width: 98%;
+  border: 1px solid #74cff0;
+  border-radius: 5px;
+  margin: 3px;
+  background-color: #214f56;
+}
+.page-form-select .selector {
+  margin: 0.5rem;
+  color: #336467;
+}
+.page-form-data {
+  height: 17rem;
+  width: 98%;
+  border: 1px solid #74cff0;
+  border-radius: 5px;
+  margin: 3px;
+  background-color: #214f56;
+  background-repeat: no-repeat;
+  background-size: cover;
+  opacity: 0.85;
+}
+.map-cont {
+  flex-shrink: 1;
+  width: 65%;
+  height: 27.5rem;
+  border: 1px solid #74cff0;
+  border-radius: 3px;
+  margin: 3px;
+}
+.fav-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+.fav-item {
+  height: 5rem;
+  border: 1px solid #74cff0;;
+  border-radius: 5px;
+  opacity: 0.7;
+  margin: 3px;
+  background-color: #214f56;
+}
+.hidden {
+  display: none;
+}
+@media screen and (max-width: 700px) {
+  .page-form {
+    flex-flow: column;
+    width: 99%;
+  }
+  .page-form-select, .page-form-data {
+    width: 99%;
+  }
+  .fav-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .page-cont {
+    flex-flow: column;
+  }
+  .map-cont {
+    width: 98%;
+    height: 17rem;
+  }
+}
+@media screen and (min-width: 701px) and (max-width: 900px) {
+  .page-cont {
+    flex-flow: column;
+  }
+  .page-form, .map-cont {
+    width: 99%;
+  }
+  .page-form-data {
+    height: 10rem;
+  }
+  .fav-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .page-form{
+    flex-flow: row;
+    width: 100%;
+  }
+  .page-form-select, .page-form-data {
+    width: 50%;
+  }
+  .map-cont {
+    height: 17rem;
+  }
+}
