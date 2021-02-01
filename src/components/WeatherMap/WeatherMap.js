@@ -1,10 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import './style/WeatherMap.scss';
-import dotenv from 'dotenv';
-dotenv.config();
 
-mapboxgl.accessToken = process.env.MAPBOXGL_API_KEY;
+mapboxgl.accessToken = 'pk.eyJ1IjoicGF1bGl1c3UiLCJhIjoiY2traXduZnIwMTJxeDJ2cXQydG1sajJnMSJ9.o5ane_5y0vC4ZWzDqsoIMg'
 
 const WeatherMap = (map) => {
   const mapContainerRef = useRef(null);
