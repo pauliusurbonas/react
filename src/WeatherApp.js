@@ -8,6 +8,7 @@ import WeatherMap from './components/WeatherMap/WeatherMap';
 import { CustomDialog } from 'react-st-modal';
 import AboutDialogContent from './components/Dialog/AboutDialogContent';
 import axios from 'axios';
+const dotenv = require('dotenv');
 
 export default class App extends Component {
   constructor(props) {
@@ -43,7 +44,7 @@ export default class App extends Component {
         units: 'metric'
       },
       headers: {
-        'x-rapidapi-key': 'dccf185d9emshd202e9aa7a619c3p14ef37jsn09bef7ea83c2',
+        'x-rapidapi-key': process.env.REACT_APP_APIDAPI_KEY,
         'x-rapidapi-host': 'community-open-weather-map.p.rapidapi.com'
       }
     };
@@ -83,7 +84,7 @@ export default class App extends Component {
       method: 'GET',
       url: 'https://cors-anywhere.herokuapp.com/pixabay.com/api',
       params: {
-        key: '20100608-ec551a30a23754cda7131c518',
+        key: process.env.REACT_APP_PIXABAY_API_KEY,
         q: cityName.replace(' ','+'),
         image_type: 'photo',
         //category: 'places',

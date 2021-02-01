@@ -1,8 +1,6 @@
 import React from 'react'
 import Select from 'react-select'
 import axios from 'axios'
-import dotenv from 'dotenv'
-require('dotenv').config({ path: '../.env' })
 
 export default class CitySelector extends React.Component {
   state = {

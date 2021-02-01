@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import './style/WeatherMap.scss';
 
-mapboxgl.accessToken = 'pk.eyJ1IjoicGF1bGl1c3UiLCJhIjoiY2traXduZnIwMTJxeDJ2cXQydG1sajJnMSJ9.o5ane_5y0vC4ZWzDqsoIMg'
+mapboxgl.accessToken = process.env.REACT_APP_MAPBOXGL_API_KEY
 
 const WeatherMap = (map) => {
   const mapContainerRef = useRef(null);
