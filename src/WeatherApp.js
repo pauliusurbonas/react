@@ -85,7 +85,7 @@ export default class App extends Component {
       method: 'GET',
       url: 'https://cors-anywhere.herokuapp.com/pixabay.com/api',
       params: {
-        key: '20100608-ec551a30a23754cda7131c518',
+        key: process.env.PIXABAY_API_KEY,
         q: cityName.replace(' ','+'),
         image_type: 'photo',
         //category: 'places',
@@ -110,7 +110,7 @@ export default class App extends Component {
 
   isFavAdded = () => {
     for(let i = 0; i < this.state.favList.length; i++) {
-      if(this.state.favList[i].id == this.state.id) {
+      if(this.state.favList[i].id === this.state.id) {
         return true;
       }
     }
@@ -139,7 +139,7 @@ export default class App extends Component {
               <CitySelector onChange={this.onCityChange} ref={this.citySelectorRef}/>
               <div className="page-form-btn-cont">
                 <div className="page-menu" onClick={async () => {
-                    const note = await CustomDialog(<AboutDialogContent />, {
+                    await CustomDialog(<AboutDialogContent />, {
                       title: 'About',
                       showCloseIcon: true,
                     });
