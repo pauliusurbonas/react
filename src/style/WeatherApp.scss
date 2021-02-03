@@ -88,6 +88,10 @@ body {
 .hidden {
   display: none;
 }
+.loading {
+  margin: 0 10px;
+  color: #999;
+}
 @media screen and (max-width: 700px) {
   .page-form {
     flex-flow: column;

@@ -10,20 +10,24 @@ import AboutDialogContent from './components/Dialog/AboutDialogContent';
 import axios from 'axios';
 const dotenv = require('dotenv');
 
+const CLASS_NAME_HIDDEN = 'hidden';
+const CLASS_NAME_LOADING = 'loading';
+
 export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      weatherItemVisibilityClass: 'hidden',
+      weatherItemVisibilityClass: CLASS_NAME_HIDDEN,
       bgImageStyle: '',
-      favList: []
+      favList: [],
+      loadingClass: CLASS_NAME_HIDDEN
     };
     this.citySelectorRef = React.createRef();
   }
 
   onCountryChange = (countryCode) => {
     let state = this.state;
-    state.weatherItemVisibilityClass = "hidden";
+    state.weatherItemVisibilityClass = CLASS_NAME_HIDDEN;
     state.country = countryCode;
 
     this.setState(state);
@@ -33,8 +37,9 @@ export default class App extends Component {
   onCityChange = (cityName) => {
     this.loadCityWeather(cityName);
   }
-
+  
   loadCityWeather = (cityName) => {
+    this.updateState({loadingClass: CLASS_NAME_LOADING});
     const options = {
       method: 'GET',
       url: 'https://community-open-weather-map.p.rapidapi.com/weather',
@@ -48,7 +53,8 @@ export default class App extends Component {
         'x-rapidapi-host': 'community-open-weather-map.p.rapidapi.com'
       }
     };
-
+    
+    var that = this;
     axios.request(options).then(res => {
       let state = this.state;
       state.id = res.data.id;
@@ -61,10 +67,11 @@ export default class App extends Component {
       state.feelsLike = res.data.main.feels_like;
       state.wind = res.data.wind.speed;
       state.icon = 'http://openweathermap.org/img/w/' + res.data.weather[0].icon + '.png';
-      this.setState(state);
+      state.loadingClass = CLASS_NAME_HIDDEN;
+      that.setState(state);
     }).catch(function (error) {
       alert("Failed to load weather data");
-    	console.error(error);
+      that.updateState({loadingClass: CLASS_NAME_HIDDEN});
     });
 
     this.loadCityImage(cityName);
@@ -137,7 +144,8 @@ export default class App extends Component {
               <CountrySelector onChange={this.onCountryChange}/>
               <CitySelector onChange={this.onCityChange} ref={this.citySelectorRef}/>
               <div className="page-form-btn-cont">
-                <div className="page-menu" onClick={async () => {
+                  <span className={this.state.loadingClass}>loading...</span>
+                  <div className="page-menu" onClick={async () => {
                     await CustomDialog(<AboutDialogContent />, {
                       title: 'About',
                       showCloseIcon: true,

@@ -29,6 +29,20 @@ const WeatherMap = (map) => {
       setZoom(map.getZoom().toFixed(2));
     });
 
+    map.on('load', function(){
+      map.addLayer({
+        "id": "simple-tiles",
+        "type": "raster",
+        "source": {
+          "type": "raster",
+          "tiles": ["https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=da9bf4fda4b30e8f99c29721f7de5192"],
+          "tileSize": 256
+        },
+        "minzoom": 0,
+        "maxzoom": 22
+      });
+    });
+
     // Clean up on unmount
     return () => map.remove();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
