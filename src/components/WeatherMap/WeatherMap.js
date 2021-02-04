@@ -4,52 +4,67 @@ import './style/WeatherMap.scss';
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOXGL_API_KEY
 
-const WeatherMap = (map) => {
-  const mapContainerRef = useRef(null);
+export default class WeatherMap extends React.Component {
+  constructor(props) {
+    super(props);
+  }
 
-  const [lng, setLng] = useState(5);
-  const [lat, setLat] = useState(34);
-  const [zoom, setZoom] = useState(1.5);
-
-  // Initialize map when component mounts
-  useEffect(() => {
-    map = new mapboxgl.Map({
-      container: mapContainerRef.current,
+  componentDidMount() {
+    this.map = new mapboxgl.Map({
+      container: this.mapContainer,
       style: 'mapbox://styles/mapbox/streets-v11',
-      center: [lng, lat],
-      zoom: zoom
+      center: [this.props.lng, this.props.lat],
+      zoom: 5
     });
 
-    // Add navigation control (the +/- zoom buttons)
-    //map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+    this.map.addControl(
+      new mapboxgl.GeolocateControl({
+      positionOptions: {
+        enableHighAccuracy: true
+      },
+        trackUserLocation: true
+      })
+    );
 
-    map.on('move', () => {
-      setLng(map.getCenter().lng.toFixed(4));
-      setLat(map.getCenter().lat.toFixed(4));
-      setZoom(map.getZoom().toFixed(2));
-    });
+    this.map.addControl(new mapboxgl.NavigationControl(), 'top-left');
 
-    map.on('load', function(){
-      map.addLayer({
+    var that = this;
+    this.map.on('load', function(){
+      that.map.addLayer({
         "id": "simple-tiles",
         "type": "raster",
         "source": {
           "type": "raster",
-          "tiles": ["https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=da9bf4fda4b30e8f99c29721f7de5192"],
+          "tiles": ["https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=" + process.env.REACT_APP_OPENWEATHERMAP_API_KEY],
           "tileSize": 256
         },
         "minzoom": 0,
         "maxzoom": 22
       });
     });
+  }
 
-    // Clean up on unmount
-    return () => map.remove();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  flyToPosition(lng, lat, temp) {
+    this.map.flyTo({
+      center: [
+        lng,
+        lat
+      ],
+      zoom: 6,
+      essential: true
+      });
 
-  return (
-    <div className='map-cont' ref={mapContainerRef} />
-  );
-};
+      // var popup = new mapboxgl.Popup({ closeOnClick: true })
+      //   .setLngLat([lng, lat])
+      //   .setHTML('<span>' + temp + '℃</span>')
+      //   .addTo(this.map);
+      }
 
-export default WeatherMap;
+  componentWillUnmount() {
+    this.map.remove();
+  }
+
+  render() {
+    return <div className="map-cont" ref={el => this.mapContainer = el} />;
+  }
+}

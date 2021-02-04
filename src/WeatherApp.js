@@ -12,6 +12,8 @@ const dotenv = require('dotenv');
 
 const CLASS_NAME_HIDDEN = 'hidden';
 const CLASS_NAME_LOADING = 'loading';
+const LABEL_NO_IMAGE_DATA = 'no image data';
+const LABEL_NO_WEATHER_DATA = 'no weather data';
 
 export default class App extends Component {
   constructor(props) {
@@ -20,9 +22,12 @@ export default class App extends Component {
       weatherItemVisibilityClass: CLASS_NAME_HIDDEN,
       bgImageStyle: '',
       favList: [],
-      loadingClass: CLASS_NAME_HIDDEN
+      loadingClass: CLASS_NAME_HIDDEN,
+      lng: 23.5,
+      lat: 55.2
     };
     this.citySelectorRef = React.createRef();
+    this.mapRef = React.createRef();
   }
 
   onCountryChange = (countryCode) => {
@@ -37,9 +42,9 @@ export default class App extends Component {
   onCityChange = (cityName) => {
     this.loadCityWeather(cityName);
   }
-  
+
   loadCityWeather = (cityName) => {
-    this.updateState({loadingClass: CLASS_NAME_LOADING});
+    this.updateState(this.getLoadingState(true));
     const options = {
       method: 'GET',
       url: 'https://community-open-weather-map.p.rapidapi.com/weather',
@@ -53,40 +58,36 @@ export default class App extends Component {
         'x-rapidapi-host': 'community-open-weather-map.p.rapidapi.com'
       }
     };
-    
+
     var that = this;
     axios.request(options).then(res => {
-      let state = this.state;
+      let state = this.getLoadingState(false);
       state.id = res.data.id;
       state.city = cityName;
       state.weatherItemVisibilityClass = "page-form-data";
-      state.lon = res.data.coord.lon;
-      state.lat = res.data.coord.lat;
       state.condition = res.data.weather[0].description;
       state.temp = Math.round(res.data.main.temp);
       state.feelsLike = res.data.main.feels_like;
       state.wind = res.data.wind.speed;
       state.icon = 'http://openweathermap.org/img/w/' + res.data.weather[0].icon + '.png';
-      state.loadingClass = CLASS_NAME_HIDDEN;
-      that.setState(state);
+      state.lng = res.data.coord.lon;
+      state.lat = res.data.coord.lat;
+      this.setState(state);
+      this.mapRef.current.flyToPosition(state.lng, state.lat, state.temp);
+      this.loadCityImage(cityName);
     }).catch(function (error) {
-      alert("Failed to load weather data");
-      that.updateState({loadingClass: CLASS_NAME_HIDDEN});
+      var state = that.getLoadingState(true, LABEL_NO_WEATHER_DATA)
+      state.bgImageStyle = "";
+      that.updateState(state);
     });
 
-    this.loadCityImage(cityName);
-  }
-
-  getRandomNumber = (min, max) => {
-    return Math.floor(Math.random() * (max - min) + min);
-  }
-
-  updateState = (obj) => {
-    const state = Object.assign(this.state, obj);
-    this.setState(state);
   }
 
   loadCityImage = (cityName) => {
+    let state = this.getLoadingState(true);
+    state.bgImageStyle = "";
+    this.updateState(state);
+
     const options = {
       method: 'GET',
       url: 'https://cors-anywhere.herokuapp.com/pixabay.com/api',
@@ -98,20 +99,39 @@ export default class App extends Component {
         safesearch: 'true'
       }
     };
-    this.updateState({bgImageStyle: ""})
+
+    var that = this;
     axios.request(options).then(res => {
-      let state = this.state;
-      if(res.data.hits.length < 1) {
-        this.updateState({bgImageStyle: ""});
+      const isImgData = res.data.hits.length ? true : false;
+      const loadingText = isImgData ? "" : LABEL_NO_IMAGE_DATA;
+      let state = this.getLoadingState(!isImgData, loadingText);
+
+      if(!isImgData) {
+        state.bgImageStyle = "";
       } else {
-        var id = this.getRandomNumber(0,res.data.hits.length - 1);
-        this.updateState({bgImageStyle: res.data.hits[id].webformatURL});
+        const id = this.getRandomNumber(0,res.data.hits.length - 1);
+        state.bgImageStyle = res.data.hits[id].webformatURL;
       }
-      this.setState(state);
+      this.updateState(state);
     }).catch(function (error) {
-      alert("Failed to load image data");
-      console.error(error);
+      that.updateState(that.getLoadingState(true, LABEL_NO_IMAGE_DATA));
     });
+  }
+
+  getRandomNumber = (min, max) => {
+    return Math.floor(Math.random() * (max - min) + min);
+  }
+
+  getLoadingState = (isLoading, text) => {
+    let state = this.state;
+    state.loadingClass = isLoading ? CLASS_NAME_LOADING : CLASS_NAME_HIDDEN;
+    state.loadingText = text ? text : 'loading...';
+    return state;
+  }
+
+  updateState = (obj) => {
+    const state = Object.assign(this.state, obj);
+    this.setState(state);
   }
 
   isFavAdded = () => {
@@ -144,7 +164,7 @@ export default class App extends Component {
               <CountrySelector onChange={this.onCountryChange}/>
               <CitySelector onChange={this.onCityChange} ref={this.citySelectorRef}/>
               <div className="page-form-btn-cont">
-                  <span className={this.state.loadingClass}>loading...</span>
+                  <span className={this.state.loadingClass}>{this.state.loadingText}</span>
                   <div className="page-menu" onClick={async () => {
                     await CustomDialog(<AboutDialogContent />, {
                       title: 'About',
@@ -160,7 +180,7 @@ export default class App extends Component {
                 condition={this.state.condition} onChange={this.onFavToggle} icon={this.state.icon}/>
             </div>
           </div>
-          <WeatherMap onViewportChange={this.state.viewport}/>
+          <WeatherMap lng={this.state.lng} lat={this.state.lat} ref={this.mapRef}/>
         </div>
         <div className="fav-list">
         {this.state.favList.map((item) =>
